@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG Drawing Pad</title>
+    <style>
+        svg { border: 2px solid blue; cursor: crosshair; }
+        body { text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <h1>SVG Drawing Pad</h1>
+    <svg id="canvas" width="500" height="500" viewBox="0 0 500 500">
+        <rect width="500" height="500" fill="white"/>
+    </svg>
+    
+    <script>
+    let isDrawing = false;
+    let currentPath = '';
+    
+    const svg = document.getElementById('canvas');
+    
+    function getMousePos(evt) {
+        const rect = svg.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+    
+    svg.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        currentPath = '';
+        const pos = getMousePos(e);
+        currentPath = `${pos.x},${pos.y}`;
+        
+        // Remove old polyline if exists
+        const oldLine = svg.querySelector('polyline');
+        if (oldLine) svg.removeChild(oldLine);
+    });
+    
+    svg.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const pos = getMousePos(e);
+        currentPath += ` ${pos.x},${pos.y}`;
+        
+        let polyline = svg.querySelector('polyline');
+        if (!polyline) {
+            polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            polyline.setAttribute('stroke', 'black');
+            polyline.setAttribute('stroke-width', '3');
+            polyline.setAttribute('fill', 'none');
+            polyline.setAttribute('stroke-linecap', 'round');
+            polyline.setAttribute('stroke-linejoin', 'round');
+            svg.appendChild(polyline);
+        }
+        polyline.setAttribute('points', currentPath);
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDrawing = false;
+    });
+    </script>
+</body>
+</html>
